@@ -107,8 +107,6 @@ class Window(QWidget):
                 # add empty widgets if there are less than 4 players
                 else:
                     row.addWidget(QWidget())
-
-
             self.layout.addLayout(row)
 
 
@@ -129,7 +127,7 @@ class Window(QWidget):
         self.output_NN.setHorizontalHeaderLabels([ "Team 1", "Team 2", "Comment"])
         self.output_NN.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.output_NN.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.output_NN.setVerticalHeaderLabels([ "NN_closest","NN_best", "NN_second_best", "Old_best", "Old_second_best"])
+        self.output_NN.setVerticalHeaderLabels([ "NN_best","NN_median", "NN_median2", "Old_best", "Old_second_best"])
 
         # Add the widgets to the layout
         self.layout.addWidget(submit_button)
@@ -159,19 +157,21 @@ class Window(QWidget):
         middle_nn = len(nn_results) // 2
         middle_old = len(old_results) // 2
 
-        self.output_NN.setItem(2, 0, QTableWidgetItem(str(closest[0])))
-        self.output_NN.setItem(2, 1, QTableWidgetItem(str(closest[1])))
-        self.output_NN.setItem(2, 2, QTableWidgetItem("Result of NN = "+str(round(1+closest[2][0][0],2))))
+        self.output_NN.setItem(0, 0, QTableWidgetItem(str(closest[0])))
+        self.output_NN.setItem(0, 1, QTableWidgetItem(str(closest[1])))
+        self.output_NN.setItem(0, 2, QTableWidgetItem("Result of NN = "+str(round(1+closest[2][0][0],2))))
 
           # Print the results
-        self.output_NN.setItem(0, 0, QTableWidgetItem(str(nn_results[middle_nn][0])))
-        self.output_NN.setItem(0, 1, QTableWidgetItem(str(nn_results[middle_nn][1])))
-        # write comment with "Result of NN = "
-        self.output_NN.setItem(0, 2, QTableWidgetItem("Result of NN = "+str(round(1+nn_results[middle_nn][2][0][0],2))))
-  
-        self.output_NN.setItem(1, 0, QTableWidgetItem(str(nn_results[middle_nn-1][0])))
-        self.output_NN.setItem(1, 1, QTableWidgetItem(str(nn_results[middle_nn-1][1])))
-        self.output_NN.setItem(1, 2, QTableWidgetItem("Result of NN = "+str(round(1+nn_results[middle_nn-1][2][0][0],2))))
+        if len(selected_players)>3:
+            self.output_NN.setItem(1, 0, QTableWidgetItem(str(nn_results[middle_nn][0])))
+            self.output_NN.setItem(1, 1, QTableWidgetItem(str(nn_results[middle_nn][1])))
+            # write comment with "Result of NN = "
+            self.output_NN.setItem(1, 2, QTableWidgetItem("Result of NN = "+str(round(1+nn_results[middle_nn][2][0][0],2))))
+    
+        if len(selected_players)>4:
+             self.output_NN.setItem(2, 0, QTableWidgetItem(str(nn_results[middle_nn-1][0])))
+             self.output_NN.setItem(2, 1, QTableWidgetItem(str(nn_results[middle_nn-1][1])))
+             self.output_NN.setItem(2, 2, QTableWidgetItem("Result of NN = "+str(round(1+nn_results[middle_nn-1][2][0][0],2))))
 
 
         self.output_NN.setItem(3, 0, QTableWidgetItem(str(old_results[middle_old][0])))
@@ -179,10 +179,11 @@ class Window(QWidget):
     # write comment with total winrate for both teams
         self.output_NN.setItem(3, 2, QTableWidgetItem(str(round(old_results[middle_old][1], 2)) + " vs " + str(round(old_results[middle_old][3], 2))))
 
-        self.output_NN.setItem(4, 0, QTableWidgetItem(str(old_results[middle_old-2][0])))
-        self.output_NN.setItem(4, 1, QTableWidgetItem(str(old_results[middle_old-2][2])))
-        self.output_NN.setItem(4, 2, QTableWidgetItem(str(round(old_results[middle_old-2][1], 2)) + " vs " + str(round(old_results[middle_old-2][3], 2))))
-      
+        if len(selected_players)>4:
+            self.output_NN.setItem(4, 0, QTableWidgetItem(str(old_results[middle_old-2][0])))
+            self.output_NN.setItem(4, 1, QTableWidgetItem(str(old_results[middle_old-2][2])))
+            self.output_NN.setItem(4, 2, QTableWidgetItem(str(round(old_results[middle_old-2][1], 2)) + " vs " + str(round(old_results[middle_old-2][3], 2))))
+        
 
 def main():
     app = QApplication(sys.argv)
