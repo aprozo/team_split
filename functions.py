@@ -83,7 +83,6 @@ def add_data(names_win, names_lose, campaign='Map', date = ''):
     old_method_dataset["Winrate"]=old_method_dataset["Winrate"].apply(lambda x: round(x, 2))
 
     old_method_dataset.to_csv("old_method_dataset.csv", index=False)
-    print(old_method_dataset.to_markdown()) 
 
     # columns - Date,Map,Player1,Player2,Player3,Player4,Player5,Player6,Player7,Player8,TeamWon
     # add to datasetNN a line with date, map, team1, team2, whichteamwon:
