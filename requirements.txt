@@ -1,0 +1,5 @@
+# Basic packages used in many of the tutorials.
+################################################################
+# TensorFlow v.2.
+
+tensorflow
