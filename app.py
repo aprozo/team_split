@@ -2,8 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
-from ipynb.fs.full.test import add_data, get_teams
-
+from functions import get_teams, add_data
 
 st.write("#  Left 4 Dead 2 team composition")
 campaigns = {
