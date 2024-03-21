@@ -3,3 +3,4 @@
 # TensorFlow v.2.
 
 tensorflow
+streamlit_extras

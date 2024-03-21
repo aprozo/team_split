@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from streamlit_extras.stateful_button import button
 
 from functions import get_teams, add_data
 
@@ -122,7 +123,6 @@ for i in range(0, len(shown_players)):
 
 left_players = shown_players
 
-from streamlit_extras.stateful_button import button
 
 if button("Win team is ready", key="team1_button"):
     if check_players_team1.count(True) > 4:
