@@ -4,6 +4,7 @@ import numpy as np
 from streamlit_extras.stateful_button import button
 
 from functions import get_teams, add_data
+from PIL import Image
 
 st.image("l4d2.png")
 
@@ -111,6 +112,7 @@ st.write("---")
 st.write("## Show winrate of the players")
 
 if button("Show winrate", key="show_winrate"):
+    # format the column winrate to show percentage
     st.write(old_method_dataset.style.background_gradient( gmap=old_method_dataset['Winrate'], cmap='RdYlGn',vmin=0,vmax=1,axis=0).to_html(), unsafe_allow_html=True)
 st.write("---")
 
@@ -150,7 +152,48 @@ if button("Win team is ready", key="team1_button"):
 from datetime import date
 date = st.date_input("Date", value = date.today())
     
-campaign = st.selectbox("Campaign", list(campaigns))
+
+
+file_names= ["Blood_Harvest.webp", "Crash_Course.webp", "DeadCenter.webp", "Death_Toll.webp", "It's_Your_Funeral.webp", 
+             "TheNewParish.webp", "The_Last_Stand.webp", "COLDSTEAMPOSTER.webp",  
+             "Dead_Air.webp", "HardRain.webp", "No_Mercy.webp", "TheNewSwampFever.JPG.webp", "The_Passing_Poster.webp","Dark_Carnival02.webp"]
+
+images = [Image.open("./Campaigns/"+file_name) for file_name in file_names]
+
+campaigns = [
+    'кровавая жатва',
+    'роковой полет',
+    'вымерший центр',
+    'похоронный звон',
+    'жертва',
+    'приход',
+    'последний рубеж',
+    'холодный ручей',
+    'смерть в воздухе',
+    'ливень',
+    'нет милосердию',
+    'болотная лихорадка',
+    'переход',
+    'мрачный карнавал'
+    ]
+
+
+from streamlit_image_select import image_select
+ind = image_select(
+    label="Select a Campaign",
+    images=images,
+    captions= campaigns,
+    return_value="index",
+    use_container_width=False
+)
+
+# campaign = st.selectbox("Campaign", list(campaigns))
+
+# get the campaign name from the img
+
+campaign = campaigns[ind]
+st.write(f"Selected campaign is {campaign}")
+
 
 add_game_button = st.button("Add game to the dataset")
 if add_game_button:
