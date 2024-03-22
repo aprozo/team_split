@@ -117,105 +117,100 @@ if button("Show winrate", key="show_winrate"):
 st.write("---")
 
 st.write("## Add a game to the dataset")
-# create a list of checkboxes with players Team1 and Team2
-# def add_data(names_win, names_lose, map='Map', date = ''):
-
-check_players_team1 = []
-check_players_team2 = []
-
-shown_players1 = shown_players
 
 
-st.write("### Team 1 (win) - select 2-4 players")
-col1 = st.columns(6)
-for i in range(0, len(shown_players)):
-    check_players_team1.append(col1[i%6].checkbox(shown_players1[i], key=20+i))
+if button("Add a game", key="show_add_game"):
+    # create a list of checkboxes with players Team1 and Team2
+    # def add_data(names_win, names_lose, map='Map', date = ''):
 
-left_players = shown_players
+    check_players_team1 = []
+    check_players_team2 = []
 
-
-if button("Win team is ready", key="team1_button"):
-    if check_players_team1.count(True) > 4:
-        st.error("You have selected more than 4 players in the winning team", icon="🚨")
-        st.stop()
-    if check_players_team1.count(True) ==0:
-        st.error("You have not selected any players in the winning team", icon="🚨")
-        st.stop()
-    left_players = [player for player in shown_players1 if player not in [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]]
-    
-    
-    st.write("### Team 2 (lose)")
-    col2 = st.columns(4)
-    for i in range(0, len(left_players)):
-        check_players_team2.append(col2[i%4].checkbox(left_players[i], key=100+i))
-
-from datetime import date
-date = st.date_input("Date", value = date.today())
-    
+    shown_players1 = shown_players
 
 
-file_names= ["Blood_Harvest.webp", "Crash_Course.webp", "DeadCenter.webp", "Death_Toll.webp", "It's_Your_Funeral.webp", 
-             "TheNewParish.webp", "The_Last_Stand.webp", "COLDSTEAMPOSTER.webp",  
-             "Dead_Air.webp", "HardRain.webp", "No_Mercy.webp", "TheNewSwampFever.JPG.webp", "The_Passing_Poster.webp","Dark_Carnival02.webp"]
+    st.write("### Team 1 (win) - select 2-4 players")
+    col1 = st.columns(6)
+    for i in range(0, len(shown_players)):
+        check_players_team1.append(col1[i%6].checkbox(shown_players1[i], key=20+i))
 
-images = [Image.open("./Campaigns/"+file_name) for file_name in file_names]
+    if button("Win team is ready", key="team1_button"):
+        if check_players_team1.count(True) > 4:
+            st.error("You have selected more than 4 players in the winning team", icon="🚨")
+            st.stop()
+        if check_players_team1.count(True) ==0:
+            st.error("You have not selected any players in the winning team", icon="🚨")
+            st.stop()
+        left_players = [player for player in shown_players1 if player not in [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]]
+        
+        
+        st.write("### Team 2 (lose)")
+        col2 = st.columns(4)
+        for i in range(0, len(left_players)):
+            check_players_team2.append(col2[i%4].checkbox(left_players[i], key=100+i))
 
-campaigns = [
-    'кровавая жатва',
-    'роковой полет',
-    'вымерший центр',
-    'похоронный звон',
-    'жертва',
-    'приход',
-    'последний рубеж',
-    'холодный ручей',
-    'смерть в воздухе',
-    'ливень',
-    'нет милосердию',
-    'болотная лихорадка',
-    'переход',
-    'мрачный карнавал'
-    ]
-
-
-from streamlit_image_select import image_select
-ind = image_select(
-    label="Select a Campaign",
-    images=images,
-    captions= campaigns,
-    return_value="index",
-    use_container_width=False
-)
-
-# campaign = st.selectbox("Campaign", list(campaigns))
-
-# get the campaign name from the img
-
-campaign = campaigns[ind]
-st.write(f"Selected campaign is {campaign}")
+    from datetime import date
+    date = st.date_input("Date", value = date.today())
+        
 
 
-add_game_button = st.button("Add game to the dataset")
-if add_game_button:
-    if check_players_team2.count(True) > 4:
-        st.error("You have selected more than 4 players in the losing team", icon="🚨")
-        st.stop()
+    file_names= ["Blood_Harvest.webp", "Crash_Course.webp", "DeadCenter.webp", "Death_Toll.webp", "It's_Your_Funeral.webp", 
+                "TheNewParish.webp", "The_Last_Stand.webp", "COLDSTEAMPOSTER.webp",  
+                "Dead_Air.webp", "HardRain.webp", "No_Mercy.webp", "TheNewSwampFever.JPG.webp", "The_Passing_Poster.webp","Dark_Carnival02.webp"]
 
-    if check_players_team2.count(True) ==0:
-        st.error("You have not selected any players in the losing team", icon="🚨")
-        st.stop()
-    present_players_team1 = [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]
-    left_players = [player for player in shown_players1 if player not in [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]]
-    present_players_team2 = [left_players[i] for i in range(0, len(left_players)) if check_players_team2[i]]
+    campaigns = [
+        'кровавая жатва',
+        'роковой полет',
+        'вымерший центр',
+        'похоронный звон',
+        'жертва',
+        'приход',
+        'последний рубеж',
+        'холодный ручей',
+        'смерть в воздухе',
+        'ливень',
+        'нет милосердию',
+        'болотная лихорадка',
+        'переход',
+        'мрачный карнавал'
+        ]
 
-    if add_data(present_players_team1, present_players_team2, campaign, date):
-        st.success("Game added to the dataset")
-        st.write("Team 1 (win):", present_players_team1)
-        st.write("Team 2 (lose):", present_players_team2)
+
+    from streamlit_image_select import image_select
+    ind = image_select(
+        label="Select a Campaign",
+        images=[Image.open("./Campaigns/"+file_name) for file_name in file_names],
+        captions= campaigns,
+        return_value="index",
+        use_container_width=False
+    )
+
+    campaign = campaigns[ind]
+ 
+    st.write("### Selected campaign:", campaign)
+
+
+    add_game_button = st.button("Add game to the dataset")
+    if add_game_button:
+        if check_players_team2.count(True) > 4:
+            st.error("You have selected more than 4 players in the losing team", icon="🚨")
+            st.stop()
+
+        if check_players_team2.count(True) ==0:
+            st.error("You have not selected any players in the losing team", icon="🚨")
+            st.stop()
+        present_players_team1 = [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]
+        left_players = [player for player in shown_players1 if player not in [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]]
+        present_players_team2 = [left_players[i] for i in range(0, len(left_players)) if check_players_team2[i]]
+        
+        if add_data(present_players_team1, present_players_team2, campaign, date):
+            st.success("Game added to the dataset")
+            st.write("Team 1 (win):", present_players_team1)
+            st.write("Team 2 (lose):", present_players_team2)
 
     # display 
 st.write("---")
-st.write("## Retrain the mode")
+st.write("## Retrain the model")
 retrain_button = st.button("Retrain")
 import time
 if retrain_button:
