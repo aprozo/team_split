@@ -5,6 +5,8 @@ from streamlit_extras.stateful_button import button
 
 from functions import get_teams, add_data
 
+st.image("l4d2.png")
+
 st.write("#  Left 4 Dead 2 team composition")
 campaigns = {
     'ливень',
@@ -42,9 +44,11 @@ if submit_button:
     if check_players.count(True) > 8:
         st.error("You have selected more than 8 players", icon="🚨"
                  )
+        st.stop()
     if check_players.count(True) <= 4:
         st.error("You have selected less than 5 players", icon="🚨"
                  )
+        st.stop()
 #  from check_players create a list of selected players
     present_players = [shown_players[i] for i in range(0, len(shown_players)) if check_players[i]]
     st.write("You have selected the following players:")
@@ -95,16 +99,20 @@ if submit_button:
     # drop the columns with winrates
     old_method_output = old_method_output.drop(columns=["Team1 Winrate", "Team2 Winrate"])
 
-         
+    st.write("### Neural Network")     
     table = st.table(nn_output)
     st.write("NN output is a probability of Team1 winning. The closer to 50 % the more balanced the teams are.")
     
-
+    st.write("### Winrate sum method")     
     table = st.table(old_method_output)
 
     # display 
+st.write("---")
+st.write("## Show winrate of the players")
 
-st.write("## ")
+if button("Show winrate", key="show_winrate"):
+    st.write(old_method_dataset.style.background_gradient( gmap=old_method_dataset['Winrate'], cmap='RdYlGn',vmin=0,vmax=1,axis=0).to_html(), unsafe_allow_html=True)
+st.write("---")
 
 st.write("## Add a game to the dataset")
 # create a list of checkboxes with players Team1 and Team2
@@ -116,7 +124,7 @@ check_players_team2 = []
 shown_players1 = shown_players
 
 
-st.write("### Team 1 (win)")
+st.write("### Team 1 (win) - select 2-4 players")
 col1 = st.columns(6)
 for i in range(0, len(shown_players)):
     check_players_team1.append(col1[i%6].checkbox(shown_players1[i], key=20+i))
@@ -140,8 +148,7 @@ if button("Win team is ready", key="team1_button"):
         check_players_team2.append(col2[i%4].checkbox(left_players[i], key=100+i))
 
 from datetime import date
-today = date.today()
-date = st.text_input("Date (YYYY-MM-DD)", value = today)
+date = st.date_input("Date", value = date.today())
     
 campaign = st.selectbox("Campaign", list(campaigns))
 
@@ -162,6 +169,23 @@ if add_game_button:
         st.success("Game added to the dataset")
         st.write("Team 1 (win):", present_players_team1)
         st.write("Team 2 (lose):", present_players_team2)
+
+    # display 
+st.write("---")
+st.write("## Retrain the mode")
+retrain_button = st.button("Retrain")
+import time
+if retrain_button:
+    progress_text = "Operation in progress. Please wait."
+    my_bar = st.progress(0, text=progress_text)
+
+    for percent_complete in range(100):
+        time.sleep(0.02)
+        my_bar.progress(percent_complete + 1, text=progress_text)
+    time.sleep(1)
+    my_bar.empty()
+    st.balloons()
+    st.success("The model is retrained")
 
    
 
