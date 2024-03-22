@@ -2,37 +2,20 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from streamlit_extras.stateful_button import button
-
 from functions import get_teams, add_data
+from streamlit_image_select import image_select
 from PIL import Image
 
 st.image("l4d2.png")
 
 st.write("#  Left 4 Dead 2 team composition")
-campaigns = {
-    'ливень',
-    'кровавая жатва', 
-    'переход',
-    'мрачный карнавал',
-    'холодный ручей',
-    'похоронный звон',
-    'приход',
-    'смерть в воздухе',
-    'нет милосердию',
-    'вымерший центр',
-    'болотная лихорадка',
-    'последний рубеж',
-    'жертва',
-    'роковой полет'}
 all_players = ['Бот','Вадим', 'Ваня', 'Гриша', 'Данил', 'Ден', 'Джун', 'Миша', 'Ондрей', 'Савва', 'Сеньор', 'Юран']
 input_NN_line = [player+"_team1" for player in all_players] + [player+"_team2" for player in all_players]
 shown_players =all_players[1:]
 # make the list of players from table above
 old_method_dataset = pd.read_csv("old_method_dataset.csv")
 
-
 col = st.columns(3)
-
 # create a list of checkboxes with all players
 check_players = []
 for i in range(0, len(shown_players)):
@@ -40,7 +23,6 @@ for i in range(0, len(shown_players)):
     
 #  create a button "Submit"
 submit_button = st.button("Submit")
-
 if submit_button:
     if check_players.count(True) > 8:
         st.error("You have selected more than 8 players", icon="🚨"
@@ -176,7 +158,6 @@ if button("Add a game", key="show_add_game"):
         ]
 
 
-    from streamlit_image_select import image_select
     ind = image_select(
         label="Select a Campaign",
         images=[Image.open("./Campaigns/"+file_name) for file_name in file_names],
@@ -216,14 +197,10 @@ import time
 if retrain_button:
     progress_text = "Operation in progress. Please wait."
     my_bar = st.progress(0, text=progress_text)
-
     for percent_complete in range(100):
-        time.sleep(0.02)
+        time.sleep(0.01)
         my_bar.progress(percent_complete + 1, text=progress_text)
     time.sleep(1)
     my_bar.empty()
     st.balloons()
     st.success("The model is retrained")
-
-   
-
