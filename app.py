@@ -7,13 +7,39 @@ from streamlit_image_select import image_select
 from PIL import Image
 
 st.image("l4d2.png")
-
 st.write("#  Left 4 Dead 2 team composition")
+
+
 all_players = ['Бот','Вадим', 'Ваня', 'Гриша', 'Данил', 'Ден', 'Джун', 'Миша', 'Ондрей', 'Савва', 'Сеньор', 'Юран']
 input_NN_line = [player+"_team1" for player in all_players] + [player+"_team2" for player in all_players]
 shown_players =all_players[1:]
-# make the list of players from table above
-old_method_dataset = pd.read_csv("old_method_dataset.csv")
+
+file_names= ["Blood_Harvest.webp", "Crash_Course.webp", "DeadCenter.webp", "Death_Toll.webp", "It's_Your_Funeral.webp", 
+                "TheNewParish.webp", "The_Last_Stand.webp", "COLDSTEAMPOSTER.webp",  
+                "Dead_Air.webp", "HardRain.webp", "No_Mercy.webp", "TheNewSwampFever.JPG.webp", "The_Passing_Poster.webp","Dark_Carnival02.webp"]
+
+campaigns = [
+        'кровавая жатва',
+        'роковой полет',
+        'вымерший центр',
+        'похоронный звон',
+        'жертва',
+        'приход',
+        'последний рубеж',
+        'холодный ручей',
+        'смерть в воздухе',
+        'ливень',
+        'нет милосердию',
+        'болотная лихорадка',
+        'переход',
+        'мрачный карнавал'
+        ]
+
+
+@st.cache_data
+def load_data():
+    return pd.read_csv("old_method_dataset.csv")
+
 
 col = st.columns(3)
 # create a list of checkboxes with all players
@@ -25,12 +51,10 @@ for i in range(0, len(shown_players)):
 submit_button = st.button("Submit")
 if submit_button:
     if check_players.count(True) > 8:
-        st.error("You have selected more than 8 players", icon="🚨"
-                 )
+        st.error("You have selected more than 8 players", icon="🚨")
         st.stop()
     if check_players.count(True) <= 4:
-        st.error("You have selected less than 5 players", icon="🚨"
-                 )
+        st.error("You have selected less than 5 players", icon="🚨")
         st.stop()
 #  from check_players create a list of selected players
     present_players = [shown_players[i] for i in range(0, len(shown_players)) if check_players[i]]
@@ -95,6 +119,7 @@ st.write("## Show winrate of the players")
 
 if button("Show winrate", key="show_winrate"):
     # format the column winrate to show percentage
+    old_method_dataset= load_data()
     st.write(old_method_dataset.style.background_gradient( gmap=old_method_dataset['Winrate'], cmap='RdYlGn',vmin=0,vmax=1,axis=0).to_html(), unsafe_allow_html=True)
 st.write("---")
 
@@ -131,63 +156,46 @@ if button("Add a game", key="show_add_game"):
         for i in range(0, len(left_players)):
             check_players_team2.append(col2[i%4].checkbox(left_players[i], key=100+i))
 
-    from datetime import date
-    date = st.date_input("Date", value = date.today())
+        from datetime import date
+        date = st.date_input("Date", value = date.today())
         
 
-
-    file_names= ["Blood_Harvest.webp", "Crash_Course.webp", "DeadCenter.webp", "Death_Toll.webp", "It's_Your_Funeral.webp", 
-                "TheNewParish.webp", "The_Last_Stand.webp", "COLDSTEAMPOSTER.webp",  
-                "Dead_Air.webp", "HardRain.webp", "No_Mercy.webp", "TheNewSwampFever.JPG.webp", "The_Passing_Poster.webp","Dark_Carnival02.webp"]
-
-    campaigns = [
-        'кровавая жатва',
-        'роковой полет',
-        'вымерший центр',
-        'похоронный звон',
-        'жертва',
-        'приход',
-        'последний рубеж',
-        'холодный ручей',
-        'смерть в воздухе',
-        'ливень',
-        'нет милосердию',
-        'болотная лихорадка',
-        'переход',
-        'мрачный карнавал'
-        ]
+        @st.cache_data
+        def load_images():
+            return  [Image.open("./Campaigns/"+file_name) for file_name in file_names]
 
 
-    ind = image_select(
+
+        ind = image_select(
         label="Select a Campaign",
-        images=[Image.open("./Campaigns/"+file_name) for file_name in file_names],
+        images=load_images(),
         captions= campaigns,
         return_value="index",
         use_container_width=False
-    )
+        )
 
-    campaign = campaigns[ind]
+        campaign = campaigns[ind]
  
-    st.write("### Selected campaign:", campaign)
+        st.write("### Selected campaign:", campaign)
 
 
-    add_game_button = st.button("Add game to the dataset")
-    if add_game_button:
-        if check_players_team2.count(True) > 4:
-            st.error("You have selected more than 4 players in the losing team", icon="🚨")
-            st.stop()
+        add_game_button = st.button("Add game to the dataset")
+        if add_game_button:
+            if check_players_team2.count(True) > 4:
+                st.error("You have selected more than 4 players in the losing team", icon="🚨")
+                st.stop()
 
-        if check_players_team2.count(True) ==0:
-            st.error("You have not selected any players in the losing team", icon="🚨")
-            st.stop()
-        present_players_team1 = [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]
-        left_players = [player for player in shown_players1 if player not in [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]]
-        present_players_team2 = [left_players[i] for i in range(0, len(left_players)) if check_players_team2[i]]
-        
-        if add_data(present_players_team1, present_players_team2, campaign, date):
-            st.success("Game added to the dataset")
-            st.write("Team 1 (win):", present_players_team1)
-            st.write("Team 2 (lose):", present_players_team2)
+            if check_players_team2.count(True) ==0:
+                st.error("You have not selected any players in the losing team", icon="🚨")
+                st.stop()
+            present_players_team1 = [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]
+            left_players = [player for player in shown_players1 if player not in [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]]
+            present_players_team2 = [left_players[i] for i in range(0, len(left_players)) if check_players_team2[i]]
+            
+            if add_data(present_players_team1, present_players_team2, campaign, date):
+                st.success("Game added to the dataset")
+                st.write("Team 1 (win):", present_players_team1)
+                st.write("Team 2 (lose):", present_players_team2)
 
     # display 
 st.write("---")

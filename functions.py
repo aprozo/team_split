@@ -1,6 +1,12 @@
 import pandas as pd
 import numpy as np
 from tensorflow import keras
+import streamlit as st
+
+# Load the model (only executed once!)
+@st.cache_resource
+def load_model():
+	  return keras.models.load_model('model.keras')
 
 
 def get_teams(present_players):
@@ -59,7 +65,7 @@ def get_teams(present_players):
     all_teams_old_method.reset_index(drop=True, inplace=True)
 
     # predict the output of the NN
-    model = keras.models.load_model('model.keras')
+    model = load_model()
     all_teams_nn["NN output"] = model.predict(input_nn)
     all_teams_nn.sort_values(by="NN output", inplace=True)
 
