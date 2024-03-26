@@ -40,6 +40,9 @@ campaigns = [
 def load_data():
     return pd.read_csv("old_method_dataset.csv")
 
+@st.cache_data
+def load_images():
+    return  [Image.open("./Campaigns/"+file_name) for file_name in file_names]
 
 with st.form(key="my_form"):
     st.write("## Select players for the game")
@@ -170,7 +173,7 @@ if button("Add a game", key="show_add_game"):
     shown_players1 = shown_players
 
 
-    st.write("### Team 1 (win) - select 2-4 players")
+    st.write("### Team (win) - select 1-4 players")
     col1 = st.columns(6)
     for i in range(0, len(shown_players)):
         check_players_team1.append(col1[i%6].checkbox(shown_players1[i], key=20+i))
@@ -185,7 +188,7 @@ if button("Add a game", key="show_add_game"):
         left_players = [player for player in shown_players1 if player not in [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]]
         
         
-        st.write("### Team 2 (lose)")
+        st.write("### Team (lose)")
         col2 = st.columns(4)
         for i in range(0, len(left_players)):
             check_players_team2.append(col2[i%4].checkbox(left_players[i], key=100+i))
@@ -194,23 +197,20 @@ if button("Add a game", key="show_add_game"):
         date = st.date_input("Date", value = date.today())
         
 
-        @st.cache_data
-        def load_images():
-            return  [Image.open("./Campaigns/"+file_name) for file_name in file_names]
-
-
-
-        ind = image_select(
-        label="Select a Campaign",
-        images=load_images(),
-        captions= campaigns,
-        return_value="index",
-        use_container_width=False
-        )
-
-        campaign = campaigns[ind]
  
-        st.write("### Selected campaign:", campaign)
+
+        with st.form(key="my_form3"):
+            ind = image_select(
+            label="Select a Campaign",
+            images=load_images(),
+            captions= campaigns,
+            return_value="index",
+            use_container_width=False
+            )
+            campaign = campaigns[ind]
+            submit_button_ =  st.form_submit_button("Choose")
+            if submit_button_:
+                st.write("### Selected campaign:", campaign)
 
 
         add_game_button = st.button("Add game to the dataset")
@@ -228,8 +228,10 @@ if button("Add a game", key="show_add_game"):
             
             if add_data(present_players_team1, present_players_team2, campaign, date):
                 st.success("Game added to the dataset")
-                st.write("Team 1 (win):", present_players_team1)
-                st.write("Team 2 (lose):", present_players_team2)
+                st.write("Team (win):", present_players_team1)
+                st.write("Team (lose):", present_players_team2)
+                st.write("Date:", date)
+                st.write("Campaign:", campaign)
 
     # display 
 st.write("---")
