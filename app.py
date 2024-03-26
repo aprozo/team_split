@@ -153,7 +153,7 @@ if button("Show history", key="show_history"):
         df.loc[~cond, 'Team2'] = color
         return df
 
-    styler = lastgames.style.apply(highlight, axis=None).hide_columns(['TeamWon'])
+    styler = lastgames.style.apply(highlight, axis=None).format( {'TeamWon': "{:.0f}"})
     st.write(styler.to_html(escape=False), unsafe_allow_html=True)
 
 st.write("---")
