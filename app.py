@@ -41,14 +41,16 @@ def load_data():
     return pd.read_csv("old_method_dataset.csv")
 
 
-col = st.columns(3)
-# create a list of checkboxes with all players
-check_players = []
-for i in range(0, len(shown_players)):
-    check_players.append(col[i%3].checkbox(shown_players[i]))
-    
-#  create a button "Submit"
-submit_button = st.button("Submit")
+with st.form(key="my_form"):
+    st.write("## Select players for the game")
+    col = st.columns(3)
+    # create a list of checkboxes with all players
+    check_players = []
+    for i in range(0, len(shown_players)):
+        check_players.append(col[i%3].checkbox(shown_players[i]))
+    #  create a button "Submit"
+    submit_button =  st.form_submit_button("Submit")
+
 if submit_button:
     if check_players.count(True) > 8:
         st.error("You have selected more than 8 players", icon="🚨")
@@ -121,8 +123,40 @@ if button("Show winrate", key="show_winrate"):
     # format the column winrate to show percentage
     old_method_dataset= load_data()
     st.write(old_method_dataset.style.background_gradient( gmap=old_method_dataset['Winrate'], cmap='RdYlGn',vmin=0,vmax=1,axis=0).to_html(), unsafe_allow_html=True)
-st.write("---")
 
+    # display 
+st.write("---")
+st.write("## Show history (last 5 games)")
+
+if button("Show history", key="show_history"):
+    # get the last 5 games from the dataset
+    history = pd.read_csv("datasetNN.csv")
+    lastgames = history.tail(5).iloc[::-1]
+    lastgames['Team1'] = lastgames[lastgames.columns[2:6]].apply(
+        lambda x: ','.join(x.dropna().astype(str)),axis=1)
+    lastgames['Team2'] = lastgames[lastgames.columns[6:10]].apply(
+        lambda x: ','.join(x.dropna().astype(str)),axis=1)
+    lastgames = lastgames.drop(columns=lastgames.columns[2:10])
+
+    def highlight(s):
+        color2 = f"background-color:lightcoral"
+        color = f"background-color:lightgreen" 
+        #condition
+        cond = s['TeamWon'] == 1
+        # DataFrame of styles
+        df = pd.DataFrame('', index=s.index, columns=s.columns)
+        # set columns by condition
+        df.loc[cond, 'Team1'] = color
+        df.loc[~cond, 'Team1'] = color2
+        # if not m, set another color
+        df.loc[cond, 'Team2'] = color2
+        df.loc[~cond, 'Team2'] = color
+        return df
+
+    styler = lastgames.style.apply(highlight, axis=None).hide_columns(['TeamWon'])
+    st.write(styler.to_html(escape=False), unsafe_allow_html=True)
+
+st.write("---")
 st.write("## Add a game to the dataset")
 
 
