@@ -249,7 +249,7 @@ if  button("Train the model", key="show_retrain"):
         dropout_rate = st.slider("Dropout rate", 0., 0.5, 0.1, step=0.05)
         nEpochs = st.slider("Number of epochs", 10, 200, 100, step=10)
         useMapWeight = st.checkbox(" Use campaign weight (campaigns with more maps will have more weight in the training)")
-        add_swap = st.checkbox(" Add swapped teams to the training data for symmetry")
+        add_swap = st.checkbox(" Add swapped teams to the training data for symmetry", value = True)
          #(2022, 10, 28) - first match
         timeStart = st.date_input("Start date of the first game", value = date(2022, 10, 28), min_value = date(2022, 10, 28))
 
@@ -258,6 +258,6 @@ if  button("Train the model", key="show_retrain"):
         if submit_button_retrain:
             with st.spinner('Training'):
                 accuracy=train_model(test_size, dropout_rate, nEpochs, useMapWeight, timeStart, add_swap)
-            st.write("### Accuracy", accuracy)
+            st.write("### Accuracy", accuracy.round(2), "%")
             st.balloons()
             st.success("The model is retrained")

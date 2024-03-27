@@ -128,7 +128,7 @@ def train_model(test_size=0.2,dropout_rate=0.2, nEpochs = 100, useMapWeight=Fals
             # callbacks=[earlystopping],
             epochs=nEpochs)
     
-
+    model.save('model.keras')
     accuracy = model.evaluate(X_test, y_test)[1]
 
     return accuracy 
