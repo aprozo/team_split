@@ -258,6 +258,6 @@ if  button("Train the model", key="show_retrain"):
         if submit_button_retrain:
             with st.spinner('Training'):
                 accuracy=train_model(test_size, dropout_rate, nEpochs, useMapWeight, timeStart, add_swap)
-            st.write("### Accuracy", accuracy.round(2), "%")
+            st.write("### Accuracy", accuracy.round(2))
             st.balloons()
             st.success("The model is retrained")
