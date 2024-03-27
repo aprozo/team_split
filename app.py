@@ -182,7 +182,6 @@ if button("Add a game", key="show_add_game"):
             st.error("You have not selected any players in the team", icon="🚨")
             st.stop()
 
-
     st.write("### Team (win) - select 1-4 players")
     col1 = st.columns(6)
     for i in range(0, len(shown_players)):
@@ -192,16 +191,16 @@ if button("Add a game", key="show_add_game"):
         is_size_ok(check_players_team1)
         left_players = [player for player in shown_players1 if player not in [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]]
         
-        
-        st.write("### Team (lose)")
-        col2 = st.columns(4)
-        for i in range(0, len(left_players)):
-            check_players_team2.append(col2[i%4].checkbox(left_players[i], key=100+i))
-
-        from datetime import date
-        date = st.date_input("Date", value = date.today(), min_value = date(2022, 10, 28), max_value = date.today())
-        
         with st.form(key="my_form3"):
+            st.write("### Team (lose)")
+            col2 = st.columns(4)
+            for i in range(0, len(left_players)):
+                check_players_team2.append(col2[i%4].checkbox(left_players[i], key=100+i))
+
+            from datetime import date
+            date = st.date_input("Date", value = date.today(), min_value = date(2022, 10, 28), max_value = date.today())
+            
+        
             ind = image_select(
             label="Select a Campaign",
             images=load_images(),
