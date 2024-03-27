@@ -36,10 +36,9 @@ map_weights = {
 'роковой полет':5}
 
 def read_data( timeStart='', useMapWeight=False):
-data=pd.read_cs                 v("datasetNN.csv")
-    # preprocess the data
+    data=pd.read_csv("datasetNN.csv")    # preprocess the data
     # Date,Map,Player1,Player2,Player3,Player4,Player5,Player6,Player7,Player8,TeamWon
-    data['Date'] = pd.to_datetime(data['Date'])
+    data['Date'] = pd.to_datetime(data['Date']).dt.date
 
     if not useMapWeight:
         data["Map_weight"] =np.ones(len(data)) # remove map weight
@@ -68,18 +67,10 @@ data=pd.read_cs                 v("datasetNN.csv")
     input_nn['TeamWon'] = data['TeamWon']
     if useMapWeight:
         input_nn['Map_weight'] = data['Map_weight']
-    #  add data with swapped players
-    input_nn_swapped = input_nn.copy()
-    for player in all_players:
-        input_nn_swapped[player+"_team1"], input_nn_swapped[player+"_team2"] = input_nn_swapped[player+"_team2"], input_nn_swapped[player+"_team1"]
-    input_nn_swapped['TeamWon'] = 3 - input_nn_swapped['TeamWon']
-    input_nn = pd.concat([input_nn, input_nn_swapped], ignore_index=True)
-
     return input_nn
 
 
-
-def train_model(test_size=0.2, nEpochs = 10, useMapWeight=False, timeStart=''):
+def train_model(test_size=0.2,dropout_rate=0.2, nEpochs = 100, useMapWeight=False, timeStart='', add_swap=False):
 
     input_nn=read_data(timeStart, useMapWeight)
     # split the data into training and testing
@@ -87,6 +78,16 @@ def train_model(test_size=0.2, nEpochs = 10, useMapWeight=False, timeStart=''):
     X = input_nn.drop(columns=["TeamWon"])
     y = input_nn["TeamWon"]-1
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+
+    #  add augumented data with swapped players for symmetrical training
+    if add_swap:
+        X_train_swap = X_train.copy()
+        for player in all_players:
+            X_train_swap[player+"_team1"], X_train_swap[player+"_team2"] = X_train_swap[player+"_team2"], X_train_swap[player+"_team1"]
+        y_train_swap=1-y_train
+        X_train = pd.concat([X_train, X_train_swap], ignore_index=True)
+        y_train = pd.concat([y_train, y_train_swap], ignore_index=True)
+
 
     if useMapWeight: 
         w_train = X_train['Map_weight']
@@ -98,31 +99,33 @@ def train_model(test_size=0.2, nEpochs = 10, useMapWeight=False, timeStart=''):
 #  create a model
     model = keras.Sequential([
     keras.layers.Dense(100, input_shape=(len(input_NN_line),), activation='relu'),
-    keras.layers.Dense(100, activation='relu'), 
+    keras.layers.Dropout(dropout_rate),
     keras.layers.Dense(100, activation='relu'),
+    keras.layers.Dropout(dropout_rate), 
+    keras.layers.Dense(100, activation='relu'),
+    keras.layers.Dropout(dropout_rate),
     keras.layers.Dense(1, activation='sigmoid')
     ])
     from keras.callbacks import EarlyStopping 
     # Early stopping criteria to avoid overtraining
-    earlystopping = EarlyStopping(patience=10,
+    earlystopping = EarlyStopping(patience=20,
                                 verbose=1,
-                                restore_best_weights=True)
-    
+                                restore_best_weights=False)
 
     # compile the model
     model.compile(optimizer='adam',
                 loss='binary_crossentropy',
-                metrics=['accuracy']
+                metrics= [] if useMapWeight else ['accuracy'],
+                weighted_metrics = ['accuracy'] if useMapWeight else []
                 )
     
-  
     # train the model
     model.fit(X_train,
             y_train, 
             batch_size=32,
             sample_weight=w_train if useMapWeight else None,
-            validation_data=(X_test, y_test), 
-            callbacks=[earlystopping],
+            validation_data=(X_test, y_test, w_test if useMapWeight else None), 
+            # callbacks=[earlystopping],
             epochs=nEpochs)
     
 

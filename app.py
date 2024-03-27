@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from streamlit_extras.stateful_button import button
-from functions import get_teams, add_data
+from functions import get_teams, add_data, train_model
 from streamlit_image_select import image_select
 from PIL import Image
 
@@ -129,12 +129,14 @@ if button("Show winrate", key="show_winrate"):
 
     # display 
 st.write("---")
-st.write("## Show history (last 5 games)")
+st.write("## History")
 
 if button("Show history", key="show_history"):
+
     # get the last 5 games from the dataset
     history = pd.read_csv("datasetNN.csv")
-    lastgames = history.tail(5).iloc[::-1]
+    ngames=st.slider("Number of games displayed", 1,len(pd.read_csv("datasetNN.csv")), 5, 1)
+    lastgames = history.tail(ngames).iloc[::-1]
     lastgames['Team1'] = lastgames[lastgames.columns[2:6]].apply(
         lambda x: ','.join(x.dropna().astype(str)),axis=1)
     lastgames['Team2'] = lastgames[lastgames.columns[6:10]].apply(
@@ -156,7 +158,7 @@ if button("Show history", key="show_history"):
         df.loc[~cond, 'Team2'] = color
         return df
 
-    styler = lastgames.style.apply(highlight, axis=None).format( {'TeamWon': "{:.0f}"})
+    styler = lastgames.style.apply(highlight, axis=None).hide('TeamWon', axis=1)
     st.write(styler.to_html(escape=False), unsafe_allow_html=True)
 
 st.write("---")
@@ -235,16 +237,27 @@ if button("Add a game", key="show_add_game"):
 
     # display 
 st.write("---")
-st.write("## Retrain the model")
-retrain_button = st.button("Retrain")
-import time
-if retrain_button:
-    progress_text = "Operation in progress. Please wait."
-    my_bar = st.progress(0, text=progress_text)
-    for percent_complete in range(100):
-        time.sleep(0.01)
-        my_bar.progress(percent_complete + 1, text=progress_text)
-    time.sleep(1)
-    my_bar.empty()
-    st.balloons()
-    st.success("The model is retrained")
+st.write("## Train the model")
+
+from datetime import date
+if  button("Train the model", key="show_retrain"):
+    with st.form(key="my_form2"):
+        st.write("### Train the model")
+        st.write("The model will be retrained with the new data")
+        # creat tuning of parameters
+        test_size = st.slider("Test size",  0.05, 0.5, 0.1, step=0.05)
+        dropout_rate = st.slider("Dropout rate", 0., 0.5, 0.1, step=0.05)
+        nEpochs = st.slider("Number of epochs", 10, 200, 100, step=10)
+        useMapWeight = st.checkbox(" Use campaign weight (campaigns with more maps will have more weight in the training)")
+        add_swap = st.checkbox(" Add swapped teams to the training data for symmetry")
+         #(2022, 10, 28) - first match
+        timeStart = st.date_input("Start date of the first game", value = date(2022, 10, 28), min_value = date(2022, 10, 28))
+
+        submit_button_retrain =st.form_submit_button("train")
+
+        if submit_button_retrain:
+            with st.spinner('Training'):
+                accuracy=train_model(test_size, dropout_rate, nEpochs, useMapWeight, timeStart, add_swap)
+            st.write("### Accuracy", accuracy)
+            st.balloons()
+            st.success("The model is retrained")
