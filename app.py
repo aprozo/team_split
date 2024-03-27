@@ -9,6 +9,16 @@ from PIL import Image
 st.image("l4d2.png")
 st.write("#  Left 4 Dead 2 team composition")
 
+st.sidebar.markdown('''
+# Navigation
+- [Team Split](#select-players-for-the-game)
+- [Winrate of the players](#winrate-of-the-players)
+- [History](#history)
+- [Add a game](#add-a-game)
+- [Train the model](#train-the-model)
+''', unsafe_allow_html=True)
+
+
 
 all_players = ['Бот','Вадим', 'Ваня', 'Гриша', 'Данил', 'Ден', 'Джун', 'Миша', 'Ондрей', 'Савва', 'Сеньор', 'Юран']
 input_NN_line = [player+"_team1" for player in all_players] + [player+"_team2" for player in all_players]
@@ -44,8 +54,9 @@ def load_data():
 def load_images():
     return  [Image.open("./Campaigns/"+file_name) for file_name in file_names]
 
+st.header("Team Split")
 with st.form(key="my_form"):
-    st.write("## Select players for the game")
+    st.write("### Select players for the game")
     col = st.columns(3)
     # create a list of checkboxes with all players
     check_players = []
@@ -120,7 +131,8 @@ if submit_button:
 
     # display 
 st.write("---")
-st.write("## Show winrate of the players")
+st.header("Winrate of the players")
+
 
 if button("Show winrate", key="show_winrate"):
     # format the column winrate to show percentage
@@ -129,7 +141,7 @@ if button("Show winrate", key="show_winrate"):
 
     # display 
 st.write("---")
-st.write("## History")
+st.header("History")
 
 if button("Show history", key="show_history"):
 
@@ -162,8 +174,7 @@ if button("Show history", key="show_history"):
     st.write(styler.to_html(escape=False), unsafe_allow_html=True)
 
 st.write("---")
-st.write("## Add a game to the dataset")
-
+st.header("Add a game")
 
 if button("Add a game", key="show_add_game"):
     # create a list of checkboxes with players Team1 and Team2
@@ -226,7 +237,7 @@ if button("Add a game", key="show_add_game"):
 
     # display 
 st.write("---")
-st.write("## Train the model")
+st.header("Train the model")
 
 from datetime import date
 if  button("Train the model", key="show_retrain"):
