@@ -245,19 +245,19 @@ if  button("Train the model", key="show_retrain"):
         st.write("### Train the model")
         st.write("The model will be retrained with the new data")
         # creat tuning of parameters
-        test_size = st.slider("Test size",  0.05, 0.5, 0.1, step=0.05)
-        dropout_rate = st.slider("Dropout rate", 0., 0.5, 0.1, step=0.05)
-        nEpochs = st.slider("Number of epochs", 10, 200, 100, step=10)
-        useMapWeight = st.checkbox(" Use campaign weight (campaigns with more maps will have more weight in the training)")
-        add_swap = st.checkbox(" Add swapped teams to the training data for symmetry", value = True)
-         #(2022, 10, 28) - first match
-        timeStart = st.date_input("Start date of the first game", value = date(2022, 10, 28), min_value = date(2022, 10, 28))
+        test_size = st.slider("Test size (  % of the dataset used for testing)",  0.05, 0.5, 0.1, step=0.05)
+        dropout_rate = st.slider("Dropout rate (avoid overfitting) ", 0., 0.5, 0.1, step=0.05)
+        nEpochs = st.slider("Number of epochs (how many times the model will use the data)" , 10, 200, 100, step=10)
+        useMapWeight = st.checkbox("Use campaign weight (campaigns with more maps will have more weight)")
+        add_swap = st.checkbox("Add swapped teams for symmetry training", value = True)         #(2022, 10, 28) - first match
+        timeStart = st.date_input("Start date of the first game (include the games after this date into the training set )", value = date(2022, 10, 28), min_value = date(2022, 10, 28), max_value = date.today())
 
         submit_button_retrain =st.form_submit_button("train")
 
         if submit_button_retrain:
             with st.spinner('Training'):
                 accuracy=train_model(test_size, dropout_rate, nEpochs, useMapWeight, timeStart, add_swap)
-            st.write("### Accuracy", accuracy.round(2))
+                accuracy = round(accuracy, 2)
+            st.write("### Accuracy" , accuracy)
             st.balloons()
             st.success("The model is retrained")
