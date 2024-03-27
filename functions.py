@@ -36,7 +36,7 @@ map_weights = {
 'роковой полет':5}
 
 def read_data( timeStart='', useMapWeight=False):
-    data=pd.read_csv("datasetNN.csv")
+data=pd.read_cs                 v("datasetNN.csv")
     # preprocess the data
     # Date,Map,Player1,Player2,Player3,Player4,Player5,Player6,Player7,Player8,TeamWon
     data['Date'] = pd.to_datetime(data['Date'])
