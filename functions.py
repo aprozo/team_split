@@ -220,9 +220,18 @@ def add_data(names_win, names_lose, campaign='Map', date = ''):
         names_win += ['Бот']
     while len(names_lose)< 4:
         names_lose += ['Бот']
-    team1 = ','.join(names_win)
-    team2 = ','.join(names_lose)
-    new_line = f'{date},{campaign},{team1},{team2},1\n'
+
+    teamwon = 1
+    if np.random.rand() > 0.5:
+        team1 = ','.join(names_win)
+        team2 = ','.join(names_lose)
+        teamwon = 1
+    else:
+        team1 = ','.join(names_lose)
+        team2 = ','.join(names_win)
+        teamwon = 2
+        
+    new_line = f'{date},{campaign},{team1},{team2}, {teamwon}\n'
     with open('datasetNN.csv', 'a') as file:
         file.write(new_line)
     print('Added to datasetNN.csv: ', new_line) 
