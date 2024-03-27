@@ -174,6 +174,14 @@ if button("Add a game", key="show_add_game"):
 
     shown_players1 = shown_players
 
+    def is_size_ok(team):
+        if team.count(True) > 4:
+            st.error("You have selected more than 4 players in the team", icon="🚨")
+            st.stop()
+        if team.count(True) ==0:
+            st.error("You have not selected any players in the team", icon="🚨")
+            st.stop()
+
 
     st.write("### Team (win) - select 1-4 players")
     col1 = st.columns(6)
@@ -181,12 +189,7 @@ if button("Add a game", key="show_add_game"):
         check_players_team1.append(col1[i%6].checkbox(shown_players1[i], key=20+i))
 
     if button("Win team is ready", key="team1_button"):
-        if check_players_team1.count(True) > 4:
-            st.error("You have selected more than 4 players in the winning team", icon="🚨")
-            st.stop()
-        if check_players_team1.count(True) ==0:
-            st.error("You have not selected any players in the winning team", icon="🚨")
-            st.stop()
+        is_size_ok(check_players_team1)
         left_players = [player for player in shown_players1 if player not in [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]]
         
         
@@ -196,11 +199,8 @@ if button("Add a game", key="show_add_game"):
             check_players_team2.append(col2[i%4].checkbox(left_players[i], key=100+i))
 
         from datetime import date
-        date = st.date_input("Date", value = date.today())
+        date = st.date_input("Date", value = date.today(), min_value = date(2022, 10, 28), max_value = date.today())
         
-
- 
-
         with st.form(key="my_form3"):
             ind = image_select(
             label="Select a Campaign",
@@ -210,30 +210,20 @@ if button("Add a game", key="show_add_game"):
             use_container_width=False
             )
             campaign = campaigns[ind]
-            submit_button_ =  st.form_submit_button("Choose")
+            submit_button_ =  st.form_submit_button("Add game to the dataset")
             if submit_button_:
                 st.write("### Selected campaign:", campaign)
-
-
-        add_game_button = st.button("Add game to the dataset")
-        if add_game_button:
-            if check_players_team2.count(True) > 4:
-                st.error("You have selected more than 4 players in the losing team", icon="🚨")
-                st.stop()
-
-            if check_players_team2.count(True) ==0:
-                st.error("You have not selected any players in the losing team", icon="🚨")
-                st.stop()
-            present_players_team1 = [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]
-            left_players = [player for player in shown_players1 if player not in [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]]
-            present_players_team2 = [left_players[i] for i in range(0, len(left_players)) if check_players_team2[i]]
-            
-            if add_data(present_players_team1, present_players_team2, campaign, date):
-                st.success("Game added to the dataset")
-                st.write("Team (win):", present_players_team1)
-                st.write("Team (lose):", present_players_team2)
-                st.write("Date:", date)
-                st.write("Campaign:", campaign)
+                is_size_ok(check_players_team2)
+                present_players_team1 = [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]
+                left_players = [player for player in shown_players1 if player not in [shown_players1[i] for i in range(0, len(shown_players1)) if check_players_team1[i]]]
+                present_players_team2 = [left_players[i] for i in range(0, len(left_players)) if check_players_team2[i]]
+                
+                if add_data(present_players_team1, present_players_team2, campaign, date):
+                    st.success("Game a added to the dataset")
+                    st.write("Team (win):", present_players_team1)
+                    st.write("Team (lose):", present_players_team2)
+                    st.write("Date:", date)
+                    st.write("Campaign:", campaign)
 
     # display 
 st.write("---")
