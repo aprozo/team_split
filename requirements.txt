@@ -6,3 +6,4 @@ tensorflow==2.13.1
 streamlit_extras
 streamlit_image_select
 scikit-learn
+st-gsheets-connection
