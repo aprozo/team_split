@@ -85,9 +85,12 @@ def train_model(dataset,
     for player in all_players:
         x_train_swap[player + '_team1'], x_train_swap[player + '_team2'] = x_train_swap[player + '_team2'], \
             x_train_swap[player + '_team1']
-    y_train_swap = 1 - y_train
+    y_train_swap = 1. - y_train
     x_train = pd.concat([x_train, x_train_swap], ignore_index=True)
     y_train = pd.concat([y_train, y_train_swap], ignore_index=True)
+
+    y_train = y_train.astype(int)
+    y_test = y_test.astype(int)
 
     w_train = []
     w_test = []
@@ -98,7 +101,6 @@ def train_model(dataset,
         x_test = x_test.drop(columns=['Map_weight'])
     # create the model
     #  create a model
-    # model
     model = keras.Sequential([
         keras.layers.Dense(100, input_shape=(len(input_NN_line),), activation='relu'),
         keras.layers.Dropout(dropout_rate),
@@ -108,11 +110,6 @@ def train_model(dataset,
         keras.layers.Dropout(dropout_rate),
         keras.layers.Dense(1, activation='sigmoid')
     ])
-    # Early stopping criteria to avoid overtraining
-    # earlystopping = EarlyStopping(patience=20,
-    #                               verbose=1,
-    #                               restore_best_weights=False)
-
     # compile the model
     model.compile(optimizer='adam',
                   loss='binary_crossentropy',
@@ -125,13 +122,19 @@ def train_model(dataset,
               y_train,
               batch_size=32,
               sample_weight=w_train if use_map_weight else None,
-              validation_data=(x_test, y_test, w_test if use_map_weight else None),
-              # callbacks=[earlystopping],
+            #   validation_split=0.1,
+              validation_data=(x_test, y_test, w_test) if use_map_weight else (x_test, y_test),
               epochs=n_epochs)
     
     model.save('model.keras')
-    accuracy = model.evaluate(x_test, y_test)[1]
-    return accuracy
+    accuracy_nn = round(model.evaluate(x_test, y_test)[1]*100, 2)
+
+    # from sklearn.ensemble import RandomForestClassifier
+    # random_forest = RandomForestClassifier(n_estimators=100)
+    # random_forest.fit(x_train, y_train)
+    # accuracy_forrest = round(random_forest.score(x_test, y_test) * 100, 2)
+
+    return accuracy_nn
 
 
 

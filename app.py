@@ -54,7 +54,6 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 dataset = conn.read(worksheet="datasetNN")
 old_method_dataset = conn.read(worksheet="winrate")
 
-
 st.header("Team Split")
 with st.form(key="my_form"):
     st.write("### Select players for the game")
@@ -123,7 +122,7 @@ if submit_button:
 
     st.write("### Neural Network")
     table = st.table(nn_output)
-    st.write("NN output is a probability of Team1 winning. The closer to 50 % the more balanced the teams are.")
+    st.write("NN output is a probability of Team2 winning. The closer to 50 % the more balanced the teams are.")
 
     st.write("### Winrate sum method")
     st.table(old_method_output)
@@ -287,14 +286,13 @@ if button("Train the model", key="show_retrain"):
             nEpochs = st.slider("Number of epochs (how many times the model will use the data)", 10, 200, 100, step=10)
         with col2:
             useMapWeight = st.checkbox("Use campaign weight (campaigns with more maps will have more weight)")
-            timeStart = st.date_input("Start date of the first game (include the games after this date into the training set )", min_value=date(2022, 10, 28), max_value=date.today())
+            timeStart = st.date_input("Start date of the first game (include the games after this date into the training set )",value=date(2022, 10, 28),min_value=date(2022, 10, 28), max_value=date.today())
 
         submit_button_retrain = st.form_submit_button("train")
 
         if submit_button_retrain:
             with st.spinner('Training'):
                 accuracy = train_model(dataset, test_size, dropout_rate, nEpochs, useMapWeight, timeStart)
-                accuracy = round(accuracy, 2)
-            st.write("### Accuracy", accuracy)
+            st.write("### Accuracy NN", accuracy)
             st.balloons()
             st.success("The model is retrained")
