@@ -142,6 +142,11 @@ st.write("---")
 st.header("History")
 
 if button("Show history", key="show_history"):
+
+    
+
+    url = "https://docs.google.com/spreadsheets/d/1Bk-EqOETnXTOkbZXr-wCLJ5KYR5Dnrtb24QguN_6pVg/edit?usp=sharing"
+    st.write("Google doc [link](%s)" % url)
     # get the last 5 games from the dataset
     ngames = st.slider("Number of games displayed", 1, len(dataset), 5, 1)
     lastgames = dataset.tail(ngames).iloc[::-1]
